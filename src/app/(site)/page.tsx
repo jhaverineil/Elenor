@@ -48,16 +48,21 @@ export default function HomePage() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              'linear-gradient(90deg, rgba(15,11,14,0.55) 0%, rgba(15,11,14,0.2) 45%, rgba(15,11,14,0) 70%), linear-gradient(180deg, rgba(15,11,14,0.35) 0%, rgba(15,11,14,0.05) 35%, rgba(15,11,14,0.3) 65%, rgba(15,11,14,0.75) 100%)',
+              // A light, even veil over the whole video, then side and bottom
+              // shading behind the headline so the text always reads.
+              'linear-gradient(rgba(15,11,14,0.22), rgba(15,11,14,0.22)), linear-gradient(90deg, rgba(15,11,14,0.55) 0%, rgba(15,11,14,0.2) 45%, rgba(15,11,14,0) 70%), linear-gradient(180deg, rgba(15,11,14,0.35) 0%, rgba(15,11,14,0.05) 35%, rgba(15,11,14,0.3) 65%, rgba(15,11,14,0.75) 100%)',
           }}
         />
         <div className="container-x relative z-10 flex min-h-[100svh] flex-col justify-end pb-16 pt-28 md:pb-24">
           <div className="max-w-3xl">
             <p className="eyebrow !text-cream/85">Maison Elenor</p>
-            <h1 id="hero-heading" className="mt-5 font-serif text-5xl uppercase leading-[1.05] text-white sm:text-6xl md:text-[3.75rem]">
+            <h1
+              id="hero-heading"
+              className="mt-5 font-serif text-5xl uppercase leading-[1.05] text-white [text-shadow:0_2px_24px_rgba(15,11,14,0.45)] sm:text-6xl md:text-[3.75rem]"
+            >
               Elenor, a house of beauty
             </h1>
-            <p className="mt-6 max-w-xl text-base font-light leading-relaxed text-cream/90 md:text-lg">
+            <p className="mt-6 max-w-xl text-base font-light leading-relaxed text-cream/90 [text-shadow:0_1px_14px_rgba(15,11,14,0.5)] md:text-lg">
               A considered edit of beauty. Curated houses, considered formulations — and nothing that does not belong on
               your shelf.
             </p>
