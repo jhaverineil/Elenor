@@ -25,7 +25,7 @@ and `admins` tables are used by the current site.
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Recommended | Stores enquiries / sign-ups for the `/admin` inbox. If neither Supabase nor SMTP is set, forms return "temporarily unavailable" (never a fake success). |
 | `ADMIN_JWT_SECRET` | Yes (prod) | Signs admin sessions. Admin sign-in is disabled in production without it (`NEXTAUTH_SECRET` is still accepted for older deployments). |
 | `SMTP_USER`, `SMTP_PASS` | Yes | Emails every enquiry to the studio. Gmail address + 16-character App Password (see below). |
-| `ENQUIRY_NOTIFY_TO` | Optional | Recipient of enquiry emails. Defaults to `nilujilu303@gmail.com`. |
+| `ENQUIRY_NOTIFY_TO` | Optional | Recipient of enquiry emails. Defaults to `xyz@gmail.com`. |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM` | Optional | Only for non-Gmail providers (defaults: `smtp.gmail.com`, `465`, `SMTP_USER`). |
 | `N8N_WEBHOOK_URL` | Optional | Receives `inquiry.created` / `newsletter.subscribed` events. |
 | `NEXT_PUBLIC_INSTAGRAM_URL` | Optional | Official profile. Instagram links stay hidden until set. |

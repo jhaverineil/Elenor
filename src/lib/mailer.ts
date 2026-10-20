@@ -7,7 +7,7 @@ import { EMAIL_LOGO } from './emailLogo';
 // Brevo, SendGrid… Configure SMTP_USER and SMTP_PASS (plus SMTP_HOST/PORT for
 // non-Gmail providers); ENQUIRY_NOTIFY_TO overrides the recipient.
 
-export const STUDIO_INBOX = process.env.ENQUIRY_NOTIFY_TO || 'nilujilu303@gmail.com';
+export const STUDIO_INBOX = process.env.ENQUIRY_NOTIFY_TO || 'xyz@gmail.com';
 
 export function isMailConfigured() {
   return Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
