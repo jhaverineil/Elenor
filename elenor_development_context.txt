@@ -1,0 +1,144 @@
+==========================================================================
+👑 ELENOR LUXURY HAIRCARE - MASTER DEVELOPMENT CONTEXT & IDE AI MANUAL 🧠
+==========================================================================
+
+NOTE (October 2026): OUTDATED. The haircare storefront, cart, checkout and
+customer accounts described below were retired to legacy/. Elenor is now an
+enquiry-led brand site — read HANDOVER.md for the current architecture.
+
+This document is compiled specifically for any incoming IDE AI Coding Assistant or Developer to gain full context of this project instantly. Read this file carefully before performing any code operations or modifications.
+
+--------------------------------------------------------------------------
+📖 1. BRAND GENESIS & REBRANDING SUMMARY
+--------------------------------------------------------------------------
+- Origin: The project originally began as a "Zenith One" premium watch landing page.
+- Rebrand: Transformed completely into "ELENOR Luxury Haircare" (an ultra-premium, salon-exclusive haircare brand).
+- Flagship Product: "Noir Repair Collection" — a premium keratin-based kit.
+- Base Pricing: INR ₹4,999.00 (Luxury Indian market target).
+- Design Ethos: Sophisticated Glassmorphism aesthetics.
+  * Translucent, frosted glass cards (backdrop-blur).
+  * Harmonious curated color palette (luxury gold accents, creamy backgrounds, deep charcoal noir).
+  * Modern typography utilizing the "Outfit" Google Font (using css variable `--font-sans`).
+  * Micro-animations (framer-motion) and clean gold borders.
+
+--------------------------------------------------------------------------
+🏗 2. MVC ARCHITECTURAL STANDARD (THE 10/10 MODEL)
+--------------------------------------------------------------------------
+The codebase follows a strict MVC pattern. Do NOT violate this separation of concerns:
+
+1. MODEL LAYER (`src/models/`):
+   - Handles direct communication with Supabase. 
+   - Never write raw Supabase query builders inside components or services.
+   - Files: `admin.model.ts`, `contact.model.ts` (and standard user models).
+
+2. CONTROLLER LAYER (`src/app/api/`):
+   - App Router route handlers.
+   - Every POST/PUT payload is validated using Zod schemas.
+   - Enforces status codes, parses session tokens, and returns structured JSON messages.
+   - Files: `/api/admin/auth/login`, `/api/admin/auth/admins`, `/api/admin/contacts`, `/api/inquiry`, etc.
+
+3. SERVICE LAYER (`src/services/`):
+   - Abstracts backend API communication.
+   - Frontend components do not invoke `fetch` directly; they call service helper functions.
+
+4. VIEW LAYER (`src/components/`, `src/app/`):
+   - React components. Presentational and client components are kept "dumb," reading state from stores and dispatching service actions.
+
+5. STATE LAYER (`src/store/`):
+   - Persistent client-side state engines using Zustand.
+   - Handles cart state (`elenor-cart`) and administrative session storage (`elenor-admin-session`).
+
+--------------------------------------------------------------------------
+🔒 3. SECURITY & CRYPTOGRAPHY SYSTEM
+--------------------------------------------------------------------------
+To maintain high reliability, Node's built-in `crypto` module is used for security operations:
+- No Heavy/External Signers: Avoids next-compilation failures on bcrypt, jsonwebtoken, or external C-bindings by using native Node libraries.
+- Password Hashing: Uses PBKDF2 with SHA-256 (10,000 iterations, custom salt) in the format `pbkdf2:iterations:salt:hash`.
+- JWT Tokens: A native JSON Web Token generator and validator using HMAC-SHA256 signature algorithm (`sha256`) is declared in `src/lib/adminCrypto.ts`.
+- Isolation: Administrative authentication is completely isolated from NextAuth. NextAuth handles standard user Google/Credentials sessions, whereas admins authenticate using their custom token validation headers via `src/lib/adminAuth.ts`.
+
+--------------------------------------------------------------------------
+📝 4. CHRONOLOGY OF DETAILED WORK & CONVERSATION DECISIONS
+--------------------------------------------------------------------------
+1. Rebranded Layouts:
+   - Replaced all watch imagery with luxury haircare photos:
+     * Main Product: `/elenor-product.jpg` (Luxury white premium bottles).
+     * Lifestyle Shot: `/lifestyle.png` (High-res glossy, healthy hair).
+   - Upgraded Hero section: Added a quantity selector so users can add multiple items to their cart directly.
+2. Persistent Cart:
+   - Configured Zustand store with `persist` middleware to survive browser reloads.
+3. Checkout & Fulfillment:
+   - Guest checkout is fully supported.
+   - Logged-in profile data (address, phone, email) is automatically pre-filled from the Supabase profile table.
+   - Order webhook: Posts completed orders to an n8n webhook which integrates with Google Sheets / Email fulfillment.
+4. Admin Dashboard Implementation:
+   - Built a complete `/admin/login` frosted glass page.
+   - Built a complete `/admin` inquiry inbox panel replica.
+   - Added security restrictions: Administrators cannot delete themselves or delete the last remaining administrator account.
+   - Added search filters, detailed modal overlays, and full delete buttons.
+
+--------------------------------------------------------------------------
+🚀 5. TRAINING GUIDE: HOW TO SETUP THE PROJECT
+--------------------------------------------------------------------------
+To run and develop this project locally, execute the following actions step-by-step:
+
+STEP A: Database Schema Setup
+You must execute the database queries inside your Supabase project.
+1. Create a project in Supabase.
+2. Copy the SQL tables inside `supabase_schema.sql` (located in the root directory).
+3. Go to the SQL Editor in your Supabase dashboard, paste the contents, and click Run.
+4. This will create:
+   - `profiles` (Auth user profiles)
+   - `products` (seeded with ELENOR Noir Repair Collection)
+   - `orders` & `order_items`
+   - `admins` (seeded with username "admin" and password "elenor-admin" with verified salt and hash)
+   - `contacts` (inquiry database)
+
+STEP B: Environment Configuration
+1. Duplicate `.env.example` to `.env.local` in the root folder.
+2. Provide your Supabase URL and Anon Key:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+3. Provide your NextAuth credentials and Google client secrets if utilizing Oauth:
+   ```env
+   NEXTAUTH_SECRET=your_nextauth_secret
+   NEXTAUTH_URL=http://localhost:3333
+   ```
+4. Provide a secure key for Admin Session tokens:
+   ```env
+   ADMIN_JWT_SECRET=your_secure_random_hash_key_for_admin_tokens
+   ```
+
+STEP C: Install and Launch
+1. Install node dependencies:
+   ```bash
+   npm install
+   ```
+2. Verify that the TypeScript compiler runs without errors:
+   ```bash
+   npx tsc --noEmit
+   ```
+3. Start the dev server:
+   ```bash
+   npm run dev
+   ```
+   *The server runs locally on Port 3333: http://localhost:3333*
+
+--------------------------------------------------------------------------
+🧪 6. HANDOVER & VERIFICATION CHECKLIST
+--------------------------------------------------------------------------
+To ensure the admin panel works perfectly:
+1. Auth Redirect Check: Try typing `http://localhost:3333/admin` in an incognito window. You must be redirected to `http://localhost:3333/admin/login` immediately.
+2. Login Check: Sign in with `admin` / `elenor-admin`. The page must load the dashboard.
+3. Inbox Check:
+   - Submit a test inquiry on the contact form, or post a JSON request to `/api/inquiry`:
+     `{ "name": "Elena", "email": "elena@luxury.com", "phone": "9999999999", "brand": "Noir Repair", "message": "Inquiry about premium distribution." }`
+   - Open `/admin` and confirm the row populates under the inbox.
+   - Use search filtering, view the inquiry detail modal, and delete the card.
+4. Admin Addition:
+   - Try creating another admin in the sidebar (e.g., username "moderator", password "mod-elenor-12").
+   - Sign out, and log back in using the new account.
+   - Go to administrator accounts and try to delete the account you are currently logged in with; the application must reject the operation with a safety alert.
+==========================================================================
