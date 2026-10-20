@@ -3,4 +3,11 @@
   publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "20"
+  # Next.js 16 requires Node 20.9 or newer
+  NODE_VERSION = "22"
+
+# Run the site through Netlify's Next.js runtime (server rendering, API routes,
+# image optimisation, redirects). Without it Netlify publishes the raw .next
+# folder as static files and every URL returns "Page not found".
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
