@@ -43,7 +43,7 @@ export default function HomePage() {
 
       {/* 1 · Hero */}
       <section className="relative min-h-[100svh] w-full overflow-hidden bg-noir" aria-labelledby="hero-heading">
-        <DeferredVideo src="/videos/hero.mp4" poster="/images/posters/hero.webp" trigger="idle" preloadPoster />
+        <DeferredVideo src="/videos/hero.mp4" mobileSrc="/videos/hero-mobile.mp4" poster="/images/posters/hero.webp" trigger="idle" preloadPoster />
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -136,7 +136,7 @@ export default function HomePage() {
         className="relative flex min-h-[520px] items-end overflow-hidden bg-noir sm:min-h-[64vh] lg:min-h-[78vh]"
         aria-labelledby="signature-heading"
       >
-        <DeferredVideo src="/videos/perfume-flacon.mp4" poster="/images/posters/perfume-flacon.webp" />
+        <DeferredVideo src="/videos/perfume-flacon.mp4" mobileSrc="/videos/perfume-flacon-mobile.mp4" poster="/images/posters/perfume-flacon.webp" />
         <div
           className="pointer-events-none absolute inset-0"
           style={{

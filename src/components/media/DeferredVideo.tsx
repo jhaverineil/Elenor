@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 
 interface DeferredVideoProps {
   src: string;
+  /** Lighter encode served below 768px wide. */
+  mobileSrc?: string;
   poster: string;
   /** Load as soon as the page is idle (hero) or only when scrolled near (below the fold). */
   trigger?: 'idle' | 'visible';
@@ -13,29 +15,38 @@ interface DeferredVideoProps {
 }
 
 /**
- * Decorative background video. The poster frame is always rendered (and is all
- * that small screens, reduced-motion and data-saver visitors receive); the
- * video file is only requested on wider screens once the page is idle or the
- * section approaches the viewport, then fades in when it can play.
+ * Decorative background video. The poster frame renders immediately; the
+ * video (a lighter file on phones) loads once the page is idle or the section
+ * approaches the viewport, then fades in as soon as it can play. Visitors who
+ * ask for reduced motion or data saving keep the still poster.
  */
-export default function DeferredVideo({ src, poster, trigger = 'visible', preloadPoster = false, className = '' }: DeferredVideoProps) {
+export default function DeferredVideo({
+  src,
+  mobileSrc,
+  poster,
+  trigger = 'visible',
+  preloadPoster = false,
+  className = '',
+}: DeferredVideoProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [load, setLoad] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [source, setSource] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const narrow = window.matchMedia('(max-width: 767px)').matches;
     const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
-    if (reduceMotion || narrow || connection?.saveData) return;
+    if (reduceMotion || connection?.saveData) return;
+
+    const narrow = window.matchMedia('(max-width: 767px)').matches;
+    const start = () => setSource(narrow && mobileSrc ? mobileSrc : src);
 
     if (trigger === 'idle') {
-      const start = () => setLoad(true);
       if (typeof window.requestIdleCallback === 'function') {
-        const id = window.requestIdleCallback(start, { timeout: 1500 });
+        const id = window.requestIdleCallback(start, { timeout: 800 });
         return () => window.cancelIdleCallback(id);
       }
-      const t = window.setTimeout(start, 800);
+      const t = window.setTimeout(start, 300);
       return () => window.clearTimeout(t);
     }
 
@@ -44,7 +55,7 @@ export default function DeferredVideo({ src, poster, trigger = 'visible', preloa
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setLoad(true);
+          start();
           observer.disconnect();
         }
       },
@@ -52,7 +63,20 @@ export default function DeferredVideo({ src, poster, trigger = 'visible', preloa
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [trigger]);
+  }, [trigger, src, mobileSrc]);
+
+  // iOS Safari and in-app browsers only autoplay when the element is muted at
+  // the property level before play() — React's `muted` prop alone is not enough.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !source) return;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.setAttribute('muted', '');
+    video.play().catch(() => {
+      // Autoplay refused (e.g. Low Power Mode): the poster simply stays.
+    });
+  }, [source]);
 
   return (
     <div ref={wrapperRef} className={`absolute inset-0 overflow-hidden ${className}`} aria-hidden="true">
@@ -65,18 +89,21 @@ export default function DeferredVideo({ src, poster, trigger = 'visible', preloa
         sizes="100vw"
         className="object-cover"
       />
-      {load && (
+      {source && (
         <video
+          ref={videoRef}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-out ${
             ready ? 'opacity-100' : 'opacity-0'
           }`}
-          src={src}
+          src={source}
           autoPlay
           muted
           loop
           playsInline
+          disablePictureInPicture
           preload="auto"
-          onCanPlay={() => setReady(true)}
+          poster={poster}
+          onPlaying={() => setReady(true)}
         />
       )}
     </div>

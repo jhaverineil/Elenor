@@ -86,9 +86,11 @@ the row.
 
 ## Notes and follow-ups
 
-- `public/videos/hero.mp4` is ~19 MB for a 5-second loop. It only loads on
-  desktop (not on mobile, reduced-motion or data-saver), but re-encoding it to
-  ~2–3 MB (e.g. `ffmpeg -crf 28 -preset slow -an -vf scale=1600:-2`) is worthwhile.
+- Videos are web-encoded H.264 with fast-start: `hero.mp4` (1600px, 2.7 MB) and
+  `perfume-flacon.mp4` (1.4 MB) for desktop, plus `*-mobile.mp4` (720px, under
+  1 MB) for phones. Visitors with reduced-motion or data-saver keep the poster.
+  Re-encode replacements the same way, e.g.
+  `ffmpeg -i in.mp4 -an -vf scale=1600:-2 -c:v libx264 -crf 28 -preset slow -movflags +faststart out.mp4`.
 - The press address `press@elenor.studio` comes from the live site — confirm it.
 - Legal pages are written to match the site's real behaviour but have not been
   reviewed by a lawyer.
